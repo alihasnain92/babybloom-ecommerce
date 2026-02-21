@@ -1,0 +1,411 @@
+# BabyBloom — Backend Master Plan
+# Based on: database_design_plan.txt & api_endpoints.txt
+
+---
+
+## PROJECT STRUCTURE
+
+```
+babybloom/
+│
+├── babybloom/              # Main project config
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+│
+├── users/                  # Signup, Login, Logout
+├── store/                  # Category, Product
+├── cart/                   # Cart, CartItem
+├── orders/                 # Order, OrderItem, ShippingAddress
+├── contact/                # ContactMessage
+│
+├── templates/              # HTML templates (frontend later)
+├── media/                  # Images (local dev)
+├── static/                 # CSS/JS
+├── .env                    # Secret keys (never push to GitHub)
+├── requirements.txt
+└── manage.py
+```
+
+---
+
+## STEP 1 — INSTALL & SETUP
+
+```bash
+pip install django pillow psycopg2-binary cloudinary django-cloudinary-storage python-dotenv gunicorn
+
+django-admin startproject babybloom .
+
+python manage.py startapp users
+python manage.py startapp store
+python manage.py startapp cart
+python manage.py startapp orders
+python manage.py startapp contact
+```
+
+---
+
+## STEP 2 — SETTINGS.PY
+
+```python
+INSTALLED_APPS = [
+    ...
+    'users',
+    'store',
+    'cart',
+    'orders',
+    'contact',
+    'cloudinary',
+    'cloudinary_storage',
+]
+
+AUTH_USER_MODEL = 'users.CustomUser'
+
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/login/'
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Load from .env
+SECRET_KEY = os.getenv('SECRET_KEY')
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
+```
+
+---
+
+## STEP 3 — MODELS (from database_design_plan.txt)
+
+### users/models.py
+```python
+from django.contrib.auth.models import AbstractUser
+
+class CustomUser(AbstractUser):
+    email = models.EmailField(unique=True)
+    phone = models.CharField(max_length=20, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    # is_staff already exists in AbstractUser (for admin access)
+```
+
+---
+
+### store/models.py
+```python
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='categories/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Product(models.Model):
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    name = models.CharField(max_length=200)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock_quantity = models.IntegerField(default=0)
+    image = models.ImageField(upload_to='products/')
+    created_at = models.DateTimeField(auto_now_add=True)
+```
+
+---
+
+### cart/models.py
+```python
+class Cart(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+```
+
+---
+
+### orders/models.py
+```python
+STATUS_CHOICES = [
+    ('pending', 'Pending'),
+    ('confirmed', 'Confirmed'),
+    ('shipped', 'Shipped'),
+    ('delivered', 'Delivered'),
+]
+
+class Order(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)  # price at time of order
+
+class ShippingAddress(models.Model):
+    order = models.OneToOneField(Order, on_delete=models.CASCADE)
+    full_name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=20)
+    address = models.TextField()
+    city = models.CharField(max_length=100)
+    country = models.CharField(max_length=100)
+    zip_code = models.CharField(max_length=20)
+```
+
+---
+
+### contact/models.py
+```python
+class ContactMessage(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    message = models.TextField()
+    sent_at = models.DateTimeField(auto_now_add=True)
+```
+
+---
+
+## STEP 4 — ADMIN REGISTRATION (from api_endpoints.txt /admin/)
+
+### store/admin.py
+```python
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = ['name', 'created_at']
+
+@admin.register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    list_display = ['name', 'category', 'price', 'stock_quantity']
+    list_filter = ['category']
+    search_fields = ['name']
+```
+
+### orders/admin.py
+```python
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['id', 'user', 'total_price', 'status', 'created_at']
+    list_filter = ['status']
+
+admin.site.register(OrderItem)
+admin.site.register(ShippingAddress)
+```
+
+### contact/admin.py
+```python
+admin.site.register(ContactMessage)
+```
+
+---
+
+## STEP 5 — VIEWS (from api_endpoints.txt)
+
+### users/views.py
+```
+signup_view   → GET  /signup/  → show signup form
+              → POST /signup/  → create user, auto login, redirect to /
+
+login_view    → GET  /login/   → show login form
+              → POST /login/   → authenticate user, redirect to /
+
+logout_view   → GET  /logout/  → logout user, redirect to /login/
+```
+
+### store/views.py
+```
+home_view       → GET /                      → homepage with featured products
+shop_view       → GET /shop/                 → all products
+category_view   → GET /shop/category/<id>/   → products filtered by category
+product_view    → GET /shop/product/<id>/    → single product detail
+```
+
+### cart/views.py (all require @login_required)
+```
+cart_view          → GET  /cart/                    → show all cart items + total
+add_to_cart        → POST /cart/add/<product_id>/   → add product, create cart if not exists
+update_cart_item   → POST /cart/update/<item_id>/   → change quantity
+remove_cart_item   → POST /cart/remove/<item_id>/   → delete item from cart
+```
+
+### orders/views.py (all require @login_required)
+```
+checkout_view   → GET  /checkout/                        → show form (address + order summary)
+place_order     → POST /checkout/                        → save Order + OrderItems + ShippingAddress + clear Cart
+order_confirm   → GET  /order/confirmation/<order_id>/   → thank you / success page
+order_history   → GET  /orders/                          → list all orders for logged in user
+order_detail    → GET  /orders/<order_id>/               → single order with items & shipping
+```
+
+### contact/views.py
+```
+contact_view    → GET  /contact/   → show contact form
+                → POST /contact/   → save ContactMessage, show success message
+```
+
+---
+
+## STEP 6 — URLS SETUP
+
+### babybloom/urls.py
+```python
+urlpatterns = [
+    path('admin/',    admin.site.urls),
+    path('',          include('store.urls')),
+    path('',          include('users.urls')),
+    path('cart/',     include('cart.urls')),
+    path('',          include('orders.urls')),
+    path('contact/',  include('contact.urls')),
+]
+```
+
+### users/urls.py
+```python
+path('signup/',  signup_view,  name='signup'),
+path('login/',   login_view,   name='login'),
+path('logout/',  logout_view,  name='logout'),
+```
+
+### store/urls.py
+```python
+path('',                          home_view,      name='home'),
+path('shop/',                     shop_view,      name='shop'),
+path('shop/category/<int:id>/',   category_view,  name='category'),
+path('shop/product/<int:id>/',    product_view,   name='product'),
+```
+
+### cart/urls.py
+```python
+path('',                      cart_view,         name='cart'),
+path('add/<int:product_id>/', add_to_cart,       name='add_to_cart'),
+path('update/<int:item_id>/', update_cart_item,  name='update_cart'),
+path('remove/<int:item_id>/', remove_cart_item,  name='remove_cart'),
+```
+
+### orders/urls.py
+```python
+path('checkout/',                          checkout_view,  name='checkout'),
+path('order/confirmation/<int:order_id>/', order_confirm,  name='order_confirm'),
+path('orders/',                            order_history,  name='order_history'),
+path('orders/<int:order_id>/',             order_detail,   name='order_detail'),
+```
+
+### contact/urls.py
+```python
+path('contact/', contact_view, name='contact'),
+```
+
+---
+
+## STEP 7 — MIGRATE & TEST
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
+
+### Test Checklist:
+- [ ] /admin/          → login → add Category → add Product
+- [ ] /signup/         → register new user
+- [ ] /login/          → login
+- [ ] /shop/           → see all products
+- [ ] /shop/category/<id>/  → filter by category
+- [ ] /shop/product/<id>/   → product detail
+- [ ] /cart/add/<id>/  → add to cart
+- [ ] /cart/           → view cart items
+- [ ] /checkout/       → fill address + place order
+- [ ] /order/confirmation/<id>/ → success page
+- [ ] /orders/         → order history
+- [ ] /contact/        → submit message → check /admin/
+
+---
+
+## STEP 8 — .ENV FILE (NEVER PUSH TO GITHUB)
+
+```
+SECRET_KEY=your_django_secret_key
+DEBUG=True
+CLOUDINARY_CLOUD_NAME=xxxx
+CLOUDINARY_API_KEY=xxxx
+CLOUDINARY_API_SECRET=xxxx
+```
+
+### .gitignore
+```
+.env
+__pycache__/
+*.pyc
+media/
+db.sqlite3
+```
+
+---
+
+## STEP 9 — REQUIREMENTS.TXT
+
+```bash
+pip freeze > requirements.txt
+```
+
+Should include:
+```
+Django>=4.2
+Pillow
+cloudinary
+django-cloudinary-storage
+python-dotenv
+gunicorn
+psycopg2-binary
+```
+
+---
+
+## STEP 10 — FREE DEPLOYMENT ON RAILWAY
+
+```
+1. Push project to GitHub
+2. Go to railway.app → New Project → Deploy from GitHub repo
+3. Add PostgreSQL Plugin inside Railway (free database)
+4. Add Environment Variables (copy from .env)
+5. Set start command:
+   python manage.py migrate && gunicorn babybloom.wsgi
+6. Railway gives you a free live URL ✅
+```
+
+---
+
+## FULL BUILD ORDER SUMMARY
+
+```
+[1]  Setup project & create 5 apps
+[2]  Configure settings.py + .env
+[3]  Build models → users, store, cart, orders, contact
+[4]  Register in admin.py → test /admin/ panel immediately
+[5]  Build views app by app (users → store → cart → orders → contact)
+[6]  Wire up all urls.py files
+[7]  makemigrations → migrate → createsuperuser → runserver
+[8]  Test every endpoint from api_endpoints.txt (use checklist above)
+[9]  Freeze requirements.txt + setup .gitignore
+[10] Push to GitHub → Deploy on Railway free tier
+```
+
+---
+
+## KEY RULES TO FOLLOW
+
+- Always use @login_required on cart & order views
+- Use get_or_create() for Cart — create cart automatically on first add
+- Save price in OrderItem at time of purchase (not live product price)
+- Use Django messages framework for success/error alerts
+- Test each app fully before moving to the next
+- Never push .env or db.sqlite3 to GitHub
+
+---
+
+*BabyBloom — Newborn Baby Store | Built with Django*

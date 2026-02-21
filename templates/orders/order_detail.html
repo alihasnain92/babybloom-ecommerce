@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Order #{{ order.id }} — BabyBloom{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex align-items-center gap-3 mb-4">
+        <a href="{% url 'order_history' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i>
+            Back</a>
+        <h1 class="fw-bold mb-0">Order #{{ order.id }}</h1>
+        {% if order.status == 'pending' %}<span class="badge bg-warning text-dark">Pending</span>
+        {% elif order.status == 'confirmed' %}<span class="badge bg-info text-dark">Confirmed</span>
+        {% elif order.status == 'shipped' %}<span class="badge bg-primary">Shipped</span>
+        {% elif order.status == 'delivered' %}<span class="badge bg-success">Delivered</span>
+        {% endif %}
+    </div>
+
+    <div class="row g-4">
+        <!-- Order Items -->
+        <div class="col-md-7">
+            <div class="card p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-box-seam"></i> Items</h5>
+                {% for item in order_items %}
+                <div
+                    class="d-flex justify-content-between align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                    <div>
+                        <p class="mb-0 fw-semibold">{{ item.product.name }}</p>
+                        <p class="mb-0 text-muted small">Unit price: ${{ item.price }} × {{ item.quantity }}</p>
+                    </div>
+                    <span class="fw-bold">${{ item.get_subtotal }}</span>
+                </div>
+                {% endfor %}
+                <hr>
+                <div class="d-flex justify-content-between fw-bold h5">
+                    <span>Total</span>
+                    <span style="color:#e91e8c">${{ order.total_price }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping & Info -->
+        <div class="col-md-5">
+            <div class="card p-4 mb-3">
+                <h5 class="fw-bold mb-3"><i class="bi bi-truck"></i> Shipping Address</h5>
+                {% if shipping %}
+                <p class="mb-1 fw-semibold">{{ shipping.full_name }}</p>
+                <p class="mb-1 text-muted">{{ shipping.phone }}</p>
+                <p class="mb-1 text-muted">{{ shipping.address }}</p>
+                <p class="mb-0 text-muted">{{ shipping.city }}, {{ shipping.country }} {{ shipping.zip_code }}</p>
+                {% else %}
+                <p class="text-muted">No shipping address found.</p>
+                {% endif %}
+            </div>
+            <div class="card p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-calendar3"></i> Order Info</h5>
+                <p class="mb-1"><span class="text-muted">Placed:</span> {{ order.created_at|date:"M d, Y — H:i" }}</p>
+                <p class="mb-0"><span class="text-muted">Status:</span> {{ order.get_status_display }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

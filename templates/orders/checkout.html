@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Checkout — BabyBloom{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="fw-bold mb-4"><i class="bi bi-credit-card"></i> Checkout</h1>
+    <div class="row g-4">
+        <!-- Shipping Form -->
+        <div class="col-md-7">
+            <div class="card p-4">
+                <h5 class="fw-bold mb-3">Shipping Information</h5>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                        {% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary w-100 py-2 mt-2">
+                        <i class="bi bi-bag-check"></i> Place Order
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-md-5">
+            <div class="card p-4">
+                <h5 class="fw-bold mb-3">Order Summary</h5>
+                {% for item in cart_items %}
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="text-muted small">{{ item.product.name }} × {{ item.quantity }}</span>
+                    <span class="small fw-semibold">${{ item.get_subtotal }}</span>
+                </div>
+                {% endfor %}
+                <hr>
+                <div class="d-flex justify-content-between fw-bold h5">
+                    <span>Total</span>
+                    <span style="color:#e91e8c">${{ total }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

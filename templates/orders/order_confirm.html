@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Order Confirmed! — BabyBloom{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="text-center mb-5">
+        <div style="font-size:5rem">🎉</div>
+        <h1 class="fw-bold mt-2">Order Confirmed!</h1>
+        <p class="lead text-muted">Thank you for shopping with BabyBloom. Your little one is going to love it!</p>
+        <span class="badge bg-success fs-6 px-3 py-2">Order #{{ order.id }}</span>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+        <!-- Items -->
+        <div class="col-md-6">
+            <div class="card p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-bag-check"></i> Items Ordered</h5>
+                {% for item in order_items %}
+                <div class="d-flex justify-content-between py-2 {% if not forloop.last %}border-bottom{% endif %}">
+                    <span>{{ item.product.name }} × {{ item.quantity }}</span>
+                    <span class="fw-bold">${{ item.get_subtotal }}</span>
+                </div>
+                {% endfor %}
+                <hr>
+                <div class="d-flex justify-content-between fw-bold h5">
+                    <span>Total Paid</span>
+                    <span style="color:#e91e8c">${{ order.total_price }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping -->
+        <div class="col-md-5">
+            <div class="card p-4 mb-3">
+                <h5 class="fw-bold mb-3"><i class="bi bi-truck"></i> Shipping To</h5>
+                <p class="mb-1 fw-semibold">{{ shipping.full_name }}</p>
+                <p class="mb-1 text-muted">{{ shipping.phone }}</p>
+                <p class="mb-1 text-muted">{{ shipping.address }}</p>
+                <p class="mb-1 text-muted">{{ shipping.city }}, {{ shipping.country }} {{ shipping.zip_code }}</p>
+            </div>
+            <div class="card p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-info-circle"></i> Order Status</h5>
+                <span class="badge bg-warning text-dark fs-6">{{ order.get_status_display }}</span>
+                <p class="text-muted small mt-2 mb-0">We'll notify you when your order ships.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-5">
+        <a href="{% url 'order_history' %}" class="btn btn-outline-primary me-2">View All Orders</a>
+        <a href="{% url 'shop' %}" class="btn btn-primary">Continue Shopping</a>
+    </div>
+</div>
+{% endblock %}
