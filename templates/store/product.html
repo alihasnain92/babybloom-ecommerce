@@ -7,8 +7,7 @@
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a href="{% url 'home' %}" style="color:#e91e8c">Home</a></li>
             <li class="breadcrumb-item"><a href="{% url 'shop' %}" style="color:#e91e8c">Shop</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'category' id=product.category.id %}" style="color:#e91e8c">{{
-                    product.category.name }}</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'category' id=product.category.id %}" style="color:#e91e8c">{{ product.category.name }}</a></li>
             <li class="breadcrumb-item active">{{ product.name }}</li>
         </ol>
     </nav>
