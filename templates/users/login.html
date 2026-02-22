@@ -1,37 +1,36 @@
 {% extends 'base.html' %}
 {% block title %}Login — BabyBloom{% endblock %}
-
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card p-4 p-md-5">
-                <div class="text-center mb-4">
-                    <h1 class="h3 fw-bold">Welcome Back 👋</h1>
-                    <p class="text-muted">Login to your BabyBloom account</p>
-                </div>
-                <form method="post" novalidate>
-                    {% csrf_token %}
-                    {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                        {% for error in field.errors %}
-                        <div class="text-danger small mt-1">{{ error }}</div>
-                        {% endfor %}
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                    <button type="submit" class="btn btn-primary w-100 py-2 mt-2">
-                        <i class="bi bi-box-arrow-in-right"></i> Login
-                    </button>
-                </form>
-                <p class="text-center mt-4 mb-0 text-muted">
-                    Don't have an account? <a href="{% url 'signup' %}" style="color:#e91e8c">Sign up</a>
-                </p>
-            </div>
+<div class="auth-page py-5">
+  <div class="container d-flex justify-content-center">
+    <div class="auth-card fade-in-up">
+      <div class="text-center mb-4">
+        <div style="font-size:2.5rem;">&#x1F338;</div>
+        <h2 class="bb-form-card-title fw-bold mt-2" style="font-family:'Playfair Display',serif;">Welcome Back</h2>
+        <p class="text-muted">Login to your BabyBloom account</p>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Username</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="bi bi-person"></i></span>
+            <input type="text" name="username" class="form-control border-start-0 border-0 bg-light" placeholder="Enter username" required style="border-radius:0 10px 10px 0;padding:.75rem 1rem;">
+          </div>
         </div>
+        <div class="mb-4">
+          <label class="form-label fw-semibold">Password</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light border-0"><i class="bi bi-lock"></i></span>
+            <input type="password" name="password" class="form-control border-start-0 border-0 bg-light" placeholder="Enter password" required style="border-radius:0 10px 10px 0;padding:.75rem 1rem;">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-pink w-100 py-2 mb-3">Login <i class="bi bi-arrow-right ms-1"></i></button>
+        <p class="text-center mb-0 text-muted" style="font-size:.9rem;">
+          Don't have an account? <a href="{% url 'signup' %}" style="color:#e91e8c;font-weight:600;">Sign up free</a>
+        </p>
+      </form>
     </div>
+  </div>
 </div>
 {% endblock %}

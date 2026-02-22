@@ -1,57 +1,65 @@
 {% extends 'base.html' %}
 {% block title %}Contact Us — BabyBloom{% endblock %}
-
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-7">
-            <div class="text-center mb-5">
-                <h1 class="fw-bold">Get In Touch 💌</h1>
-                <p class="text-muted lead">Have a question or need help? We'd love to hear from you.</p>
-            </div>
-            <div class="card p-4 p-md-5">
-                <form method="post" novalidate>
-                    {% csrf_token %}
-                    {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                        {% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                    <button type="submit" class="btn btn-primary w-100 py-2 mt-2">
-                        <i class="bi bi-send"></i> Send Message
-                    </button>
-                </form>
-            </div>
-
-            <!-- Contact Info -->
-            <div class="row g-3 mt-4 text-center">
-                <div class="col-md-4">
-                    <div class="card p-3">
-                        <div style="font-size:2rem">📧</div>
-                        <p class="mb-0 small fw-semibold mt-1">Email</p>
-                        <p class="mb-0 text-muted small">hello@babybloom.com</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card p-3">
-                        <div style="font-size:2rem">📞</div>
-                        <p class="mb-0 small fw-semibold mt-1">Phone</p>
-                        <p class="mb-0 text-muted small">+1 (555) 123-4567</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card p-3">
-                        <div style="font-size:2rem">🕐</div>
-                        <p class="mb-0 small fw-semibold mt-1">Hours</p>
-                        <p class="mb-0 text-muted small">Mon–Fri, 9am–5pm</p>
-                    </div>
-                </div>
-            </div>
+<section style="background:linear-gradient(135deg,#fce4ec 0%,var(--cream) 100%);padding:60px 0 30px;">
+  <div class="container text-center">
+    <span class="section-pill">Get in Touch</span>
+    <h1 class="section-heading mb-2">We'd Love to Hear From You</h1>
+    <p class="text-muted">Have a question? We're here to help.</p>
+  </div>
+</section>
+<section class="container py-5">
+  <div class="row g-5 align-items-start">
+    <div class="col-lg-5">
+      <div class="row g-3">
+        <div class="col-12">
+          <div class="bb-card p-4 d-flex gap-3 align-items-center">
+            <div style="width:52px;height:52px;background:linear-gradient(135deg,#e91e8c,#ff6bb5);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;flex-shrink:0;">&#x1F4E7;</div>
+            <div><h6 class="fw-bold mb-0">Email Us</h6><p class="text-muted mb-0" style="font-size:.9rem;">hello@babybloom.com</p></div>
+          </div>
         </div>
+        <div class="col-12">
+          <div class="bb-card p-4 d-flex gap-3 align-items-center">
+            <div style="width:52px;height:52px;background:linear-gradient(135deg,#e91e8c,#ff6bb5);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;flex-shrink:0;">&#x1F4DE;</div>
+            <div><h6 class="fw-bold mb-0">Call Us</h6><p class="text-muted mb-0" style="font-size:.9rem;">+1 (800) BABYBLO</p></div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="bb-card p-4 d-flex gap-3 align-items-center">
+            <div style="width:52px;height:52px;background:linear-gradient(135deg,#e91e8c,#ff6bb5);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.3rem;flex-shrink:0;">&#x23F0;</div>
+            <div><h6 class="fw-bold mb-0">Working Hours</h6><p class="text-muted mb-0" style="font-size:.9rem;">Mon-Fri, 9am - 6pm</p></div>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+    <div class="col-lg-7">
+      <div class="bb-form-card">
+        <h4 class="fw-bold mb-4" style="font-family:'Playfair Display',serif;">Send a Message</h4>
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            {% for field in form %}
+            <div class="{% if field.name == 'message' %}col-12{% else %}col-md-6{% endif %}">
+              <label class="form-label fw-semibold" style="font-size:.85rem;">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                {% for err in field.errors %}<div class="text-danger" style="font-size:.8rem;">{{ err }}</div>{% endfor %}
+              {% endif %}
+            </div>
+            {% endfor %}
+            <div class="col-12">
+              <button type="submit" class="btn btn-pink w-100 py-2">Send Message <i class="bi bi-send ms-1"></i></button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% block extra_css %}
+<style>
+.bb-form-card input, .bb-form-card textarea, .bb-form-card select { background:#f8f9fa; border:2px solid #f0f0f0; border-radius:10px; padding:.75rem 1rem; width:100%; font-family:'Poppins',sans-serif; transition:all .3s; resize:vertical; }
+.bb-form-card input:focus, .bb-form-card textarea:focus { border-color:#e91e8c; box-shadow:0 0 0 4px rgba(233,30,140,.08); outline:none; }
+</style>
+{% endblock %}
 {% endblock %}

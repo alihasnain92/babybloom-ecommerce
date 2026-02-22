@@ -1,73 +1,151 @@
 {% extends 'base.html' %}
-{% block title %}BabyBloom - Newborn Baby Clothing and Care{% endblock %}
-
+{% load static %}
+{% block title %}BabyBloom - Premium Newborn Baby Store{% endblock %}
 {% block content %}
-<section style="background: linear-gradient(135deg, #fce4ec 0%, #fdf8f6 100%); padding: 80px 0;">
-    <div class="container text-center">
-        <h1 class="display-4 fw-bold mb-3">Welcome to <span style="color:#e91e8c">BabyBloom</span> &#x1F338;</h1>
-        <p class="lead text-muted mb-4">Premium newborn baby clothing and care items.</p>
-        <a href="{% url 'shop' %}" class="btn btn-primary btn-lg px-5">Shop Now <i class="bi bi-arrow-right"></i></a>
+
+<!-- Hero -->
+<section class="bb-hero">
+  <div class="container position-relative" style="z-index:1;">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="bb-hero-badge fade-in-up">&#x2728; New Season Collection</div>
+        <h1 class="mb-3 fade-in-up delay-1">The Softest Start<br>for Your <span>Little One</span></h1>
+        <p class="lead fade-in-up delay-2">Premium newborn clothing and care items — hypoallergenic, baby-safe, and crafted with love for the tiniest members of your family.</p>
+        <div class="d-flex gap-3 mt-4 flex-wrap fade-in-up delay-3">
+          <a href="{% url 'shop' %}" class="btn btn-pink btn-lg px-5">Shop Now <i class="bi bi-arrow-right ms-1"></i></a>
+          <a href="{% url 'contact' %}" class="btn btn-outline-pink btn-lg px-4">Learn More</a>
+        </div>
+        <div class="bb-hero-stats fade-in-up">
+          <div class="bb-hero-stat"><strong>500+</strong><span>Products</span></div>
+          <div class="bb-hero-stat"><strong>98%</strong><span>Happy Moms</span></div>
+          <div class="bb-hero-stat"><strong>3-5</strong><span>Day Delivery</span></div>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
 
+<!-- USP Strip -->
+<div class="bb-usp">
+  <div class="container">
+    <div class="row g-3 text-center text-lg-start">
+      <div class="col-6 col-lg-3">
+        <div class="usp-item justify-content-center justify-content-lg-start">
+          <div class="usp-icon">&#x1F33F;</div>
+          <div><strong style="display:block;font-size:.92rem;">100% Safe</strong><span style="font-size:.78rem;opacity:.8;">Hypoallergenic</span></div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="usp-item justify-content-center justify-content-lg-start">
+          <div class="usp-icon">&#x1F69A;</div>
+          <div><strong style="display:block;font-size:.92rem;">Fast Delivery</strong><span style="font-size:.78rem;opacity:.8;">3-5 working days</span></div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="usp-item justify-content-center justify-content-lg-start">
+          <div class="usp-icon">&#x1F4E6;</div>
+          <div><strong style="display:block;font-size:.92rem;">Gift Ready</strong><span style="font-size:.78rem;opacity:.8;">Beautiful packaging</span></div>
+        </div>
+      </div>
+      <div class="col-6 col-lg-3">
+        <div class="usp-item justify-content-center justify-content-lg-start">
+          <div class="usp-icon">&#x1F4B3;</div>
+          <div><strong style="display:block;font-size:.92rem;">Secure Pay</strong><span style="font-size:.78rem;opacity:.8;">Safe checkout</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Categories -->
 {% if categories %}
 <section class="container py-5">
-    <h2 class="fw-bold mb-4">Shop by Category</h2>
-    <div class="row g-3">
-        {% for category in categories %}
-        <div class="col-6 col-md-3">
-            <a href="{% url 'category' id=category.id %}" class="text-decoration-none">
-                <div class="card text-center p-3 h-100">
-                    {% if category.image %}
-                    <img src="{{ category.image.url }}" alt="{{ category.name }}" class="rounded mb-2" style="height:80px;object-fit:cover;">
-                    {% else %}
-                    <div class="mb-2" style="font-size:2.5rem;">&#x1F9F8;</div>
-                    {% endif %}
-                    <p class="fw-semibold mb-0 text-dark">{{ category.name }}</p>
-                </div>
-            </a>
+  <div class="text-center mb-4">
+    <span class="section-pill">Browse</span>
+    <h2 class="section-heading">Shop by Category</h2>
+  </div>
+  <div class="row g-3 justify-content-center">
+    {% for category in categories %}
+    <div class="col-6 col-md-3">
+      <a href="{% url 'category' id=category.id %}" class="text-decoration-none">
+        <div class="cat-card">
+          {% if category.image %}
+          <img src="{{ category.image.url }}" class="rounded-circle mb-2" style="width:64px;height:64px;object-fit:cover;">
+          {% else %}
+          <div class="cat-icon">&#x1F9F8;</div>
+          {% endif %}
+          <p class="fw-bold mb-0" style="font-size:.95rem;color:#1a1a2e;">{{ category.name }}</p>
         </div>
-        {% endfor %}
+      </a>
     </div>
+    {% endfor %}
+  </div>
 </section>
 {% endif %}
 
+<!-- Featured Products -->
 {% if featured_products %}
-<section class="container py-3 pb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold mb-0">Featured Products</h2>
-        <a href="{% url 'shop' %}" class="btn btn-outline-primary btn-sm">View All</a>
+<section class="container pb-5">
+  <div class="d-flex justify-content-between align-items-end mb-4">
+    <div>
+      <span class="section-pill">Handpicked</span>
+      <h2 class="section-heading mb-0">Featured Products</h2>
     </div>
-    <div class="row g-4">
-        {% for product in featured_products %}
-        <div class="col-6 col-md-3">
-            <div class="card h-100">
-                {% if product.image %}
-                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height:200px;object-fit:cover;">
-                {% else %}
-                <div class="d-flex align-items-center justify-content-center bg-light" style="height:200px;font-size:3rem;">&#x1F37C;</div>
-                {% endif %}
-                <div class="card-body d-flex flex-column">
-                    <p class="text-muted small mb-1">{{ product.category.name }}</p>
-                    <h6 class="card-title fw-semibold">{{ product.name }}</h6>
-                    <p class="fw-bold mt-auto mb-2" style="color:#e91e8c">${{ product.price }}</p>
-                    <a href="{% url 'product' id=product.id %}" class="btn btn-outline-primary btn-sm">View Details</a>
-                </div>
-            </div>
+    <a href="{% url 'shop' %}" class="btn btn-outline-pink">View All <i class="bi bi-arrow-right ms-1"></i></a>
+  </div>
+  <div class="row g-4">
+    {% for product in featured_products %}
+    <div class="col-6 col-md-3">
+      <div class="bb-card h-100">
+        <div class="card-img-wrap">
+          {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}">
+          {% else %}
+          <div class="d-flex align-items-center justify-content-center bg-light" style="height:220px;font-size:3rem;">&#x1F37C;</div>
+          {% endif %}
         </div>
-        {% endfor %}
+        <div class="card-body">
+          <p class="category-badge">{{ product.category.name }}</p>
+          <h6 class="fw-semibold mb-1" style="font-size:.95rem;">{{ product.name }}</h6>
+          <p class="price-tag mb-3">${{ product.price }}</p>
+          <a href="{% url 'product' id=product.id %}" class="btn btn-outline-primary btn-sm w-100">View Details</a>
+        </div>
+      </div>
     </div>
+    {% endfor %}
+  </div>
 </section>
 {% endif %}
 
-<section style="background:#fff; padding:60px 0;">
-    <div class="container text-center">
-        <h2 class="fw-bold mb-5">Why Parents Love BabyBloom</h2>
-        <div class="row g-4">
-            <div class="col-md-4"><div class="p-4"><div style="font-size:3rem">&#x1F33F;</div><h5 class="fw-bold mt-3">100% Safe Materials</h5><p class="text-muted">All products are hypoallergenic and baby-safe.</p></div></div>
-            <div class="col-md-4"><div class="p-4"><div style="font-size:3rem">&#x1F69A;</div><h5 class="fw-bold mt-3">Fast Delivery</h5><p class="text-muted">Your order delivered within 3-5 working days.</p></div></div>
-            <div class="col-md-4"><div class="p-4"><div style="font-size:3rem">&#x1F49D;</div><h5 class="fw-bold mt-3">Gift Ready</h5><p class="text-muted">Perfect packaging for gifting newborns.</p></div></div>
+<!-- Why BabyBloom -->
+<section style="background:linear-gradient(135deg,#fce4ec 0%,#fdf8f6 100%);padding:70px 0;">
+  <div class="container text-center">
+    <span class="section-pill">Our Promise</span>
+    <h2 class="section-heading mb-5">Why Parents Love BabyBloom</h2>
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="p-4">
+          <div style="width:72px;height:72px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 4px 20px rgba(233,30,140,.15);font-size:2rem;">&#x1F33F;</div>
+          <h5 class="fw-bold">100% Safe Materials</h5>
+          <p class="text-muted">All products are hypoallergenic, dermatologist tested, and completely safe for newborn skin.</p>
         </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-4">
+          <div style="width:72px;height:72px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 4px 20px rgba(233,30,140,.15);font-size:2rem;">&#x1F69A;</div>
+          <h5 class="fw-bold">Fast Delivery</h5>
+          <p class="text-muted">Your order carefully packed and delivered within 3-5 working days, right to your doorstep.</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="p-4">
+          <div style="width:72px;height:72px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;box-shadow:0 4px 20px rgba(233,30,140,.15);font-size:2rem;">&#x1F49D;</div>
+          <h5 class="fw-bold">Gift Ready</h5>
+          <p class="text-muted">Every order comes in beautiful packaging — perfect for gifting a new baby in the family.</p>
+        </div>
+      </div>
     </div>
+  </div>
 </section>
+
 {% endblock %}

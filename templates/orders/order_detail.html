@@ -1,61 +1,62 @@
 {% extends 'base.html' %}
 {% block title %}Order #{{ order.id }} — BabyBloom{% endblock %}
-
 {% block content %}
 <div class="container py-5">
-    <div class="d-flex align-items-center gap-3 mb-4">
-        <a href="{% url 'order_history' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i>
-            Back</a>
-        <h1 class="fw-bold mb-0">Order #{{ order.id }}</h1>
-        {% if order.status == 'pending' %}<span class="badge bg-warning text-dark">Pending</span>
-        {% elif order.status == 'confirmed' %}<span class="badge bg-info text-dark">Confirmed</span>
-        {% elif order.status == 'shipped' %}<span class="badge bg-primary">Shipped</span>
-        {% elif order.status == 'delivered' %}<span class="badge bg-success">Delivered</span>
-        {% endif %}
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <a href="{% url 'order_history' %}" class="btn btn-outline-pink btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+    <div>
+      <h4 class="fw-bold mb-0" style="font-family:'Playfair Display',serif;">Order #{{ order.id }}</h4>
+      <p class="text-muted mb-0" style="font-size:.85rem;">{{ order.created_at|date:"F j, Y, g:i a" }}</p>
+    </div>
+    <span class="badge badge-status-{{ order.status }} px-3 py-2 ms-auto text-capitalize">{{ order.status }}</span>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="bb-card p-4">
+        <h5 class="fw-bold mb-3">Items</h5>
+        {% for item in order.items.all %}
+        <div class="d-flex align-items-center gap-3 py-3 border-bottom">
+          {% if item.product and item.product.image %}
+          <img src="{{ item.product.image.url }}" style="width:70px;height:70px;object-fit:cover;border-radius:10px;">
+          {% else %}
+          <div style="width:70px;height:70px;background:#fafafa;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;">&#x1F37C;</div>
+          {% endif %}
+          <div class="flex-grow-1">
+            <p class="fw-bold mb-0">{{ item.product.name|default:"Deleted Product" }}</p>
+            <p class="text-muted mb-0" style="font-size:.85rem;">Price at purchase: ${{ item.price }}</p>
+            <p class="text-muted mb-0" style="font-size:.85rem;">Quantity: {{ item.quantity }}</p>
+          </div>
+          <span class="fw-bold" style="color:#e91e8c;font-size:1.1rem;">${{ item.get_subtotal }}</span>
+        </div>
+        {% endfor %}
+        <div class="d-flex justify-content-between pt-3 border-top mt-1">
+          <span class="fw-bold fs-5">Total Paid</span>
+          <span class="fw-bold fs-5" style="color:#e91e8c;">${{ order.total_price }}</span>
+        </div>
+      </div>
     </div>
 
-    <div class="row g-4">
-        <!-- Order Items -->
-        <div class="col-md-7">
-            <div class="card p-4">
-                <h5 class="fw-bold mb-3"><i class="bi bi-box-seam"></i> Items</h5>
-                {% for item in order_items %}
-                <div
-                    class="d-flex justify-content-between align-items-center py-2 {% if not forloop.last %}border-bottom{% endif %}">
-                    <div>
-                        <p class="mb-0 fw-semibold">{{ item.product.name }}</p>
-                        <p class="mb-0 text-muted small">Unit price: ${{ item.price }} × {{ item.quantity }}</p>
-                    </div>
-                    <span class="fw-bold">${{ item.get_subtotal }}</span>
-                </div>
-                {% endfor %}
-                <hr>
-                <div class="d-flex justify-content-between fw-bold h5">
-                    <span>Total</span>
-                    <span style="color:#e91e8c">${{ order.total_price }}</span>
-                </div>
-            </div>
+    <div class="col-lg-4">
+      {% if order.shippingaddress %}
+      <div class="bb-card p-4 mb-3">
+        <h6 class="fw-bold mb-3"><i class="bi bi-geo-alt me-2" style="color:#e91e8c;"></i>Shipping Address</h6>
+        <div class="text-muted" style="font-size:.9rem;line-height:1.9;">
+          <div class="fw-semibold" style="color:#1a1a2e;">{{ order.shippingaddress.full_name }}</div>
+          <div><i class="bi bi-telephone me-2"></i>{{ order.shippingaddress.phone }}</div>
+          <div><i class="bi bi-geo me-2"></i>{{ order.shippingaddress.address }}</div>
+          <div><i class="bi bi-building me-2"></i>{{ order.shippingaddress.city }}, {{ order.shippingaddress.country }}</div>
+          <div><i class="bi bi-mailbox me-2"></i>{{ order.shippingaddress.postal_code }}</div>
         </div>
-
-        <!-- Shipping & Info -->
-        <div class="col-md-5">
-            <div class="card p-4 mb-3">
-                <h5 class="fw-bold mb-3"><i class="bi bi-truck"></i> Shipping Address</h5>
-                {% if shipping %}
-                <p class="mb-1 fw-semibold">{{ shipping.full_name }}</p>
-                <p class="mb-1 text-muted">{{ shipping.phone }}</p>
-                <p class="mb-1 text-muted">{{ shipping.address }}</p>
-                <p class="mb-0 text-muted">{{ shipping.city }}, {{ shipping.country }} {{ shipping.zip_code }}</p>
-                {% else %}
-                <p class="text-muted">No shipping address found.</p>
-                {% endif %}
-            </div>
-            <div class="card p-4">
-                <h5 class="fw-bold mb-3"><i class="bi bi-calendar3"></i> Order Info</h5>
-                <p class="mb-1"><span class="text-muted">Placed:</span> {{ order.created_at|date:"M d, Y — H:i" }}</p>
-                <p class="mb-0"><span class="text-muted">Status:</span> {{ order.get_status_display }}</p>
-            </div>
-        </div>
+      </div>
+      {% endif %}
+      <div class="bb-card p-4">
+        <h6 class="fw-bold mb-3">Order Info</h6>
+        <div class="d-flex justify-content-between mb-2" style="font-size:.88rem;"><span class="text-muted">Order ID</span><span class="fw-semibold">#{{ order.id }}</span></div>
+        <div class="d-flex justify-content-between mb-2" style="font-size:.88rem;"><span class="text-muted">Date</span><span class="fw-semibold">{{ order.created_at|date:"d M Y" }}</span></div>
+        <div class="d-flex justify-content-between" style="font-size:.88rem;"><span class="text-muted">Status</span><span class="badge badge-status-{{ order.status }} text-capitalize">{{ order.status }}</span></div>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}

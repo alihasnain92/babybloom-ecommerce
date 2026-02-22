@@ -1,86 +1,99 @@
 {% extends 'base.html' %}
 {% block title %}{{ product.name }} — BabyBloom{% endblock %}
-
 {% block content %}
 <div class="container py-5">
-    <nav aria-label="breadcrumb" class="mb-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}" style="color:#e91e8c">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'shop' %}" style="color:#e91e8c">Shop</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'category' id=product.category.id %}" style="color:#e91e8c">{{ product.category.name }}</a></li>
-            <li class="breadcrumb-item active">{{ product.name }}</li>
-        </ol>
-    </nav>
 
-    <div class="row g-5">
-        <!-- Product Image -->
-        <div class="col-md-5">
-            <div class="card p-3">
-                {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded"
-                    style="max-height:400px;object-fit:cover;width:100%;">
-                {% else %}
-                <div class="d-flex align-items-center justify-content-center bg-light rounded"
-                    style="height:400px;font-size:6rem;">🍼</div>
-                {% endif %}
-            </div>
-        </div>
+  <!-- Breadcrumb -->
+  <nav class="mb-4">
+    <ol class="breadcrumb" style="background:none;padding:0;font-size:.85rem;">
+      <li class="breadcrumb-item"><a href="{% url 'home' %}" style="color:#e91e8c;">Home</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'shop' %}" style="color:#e91e8c;">Shop</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'category' id=product.category.id %}" style="color:#e91e8c;">{{ product.category.name }}</a></li>
+      <li class="breadcrumb-item active text-muted">{{ product.name }}</li>
+    </ol>
+  </nav>
 
-        <!-- Product Info -->
-        <div class="col-md-7">
-            <p class="text-muted mb-1">{{ product.category.name }}</p>
-            <h1 class="h2 fw-bold">{{ product.name }}</h1>
-            <h2 class="h3 fw-bold my-3" style="color:#e91e8c">${{ product.price }}</h2>
-            <p class="text-muted">{{ product.description }}</p>
-
-            {% if product.is_in_stock %}
-            <p class="text-success"><i class="bi bi-check-circle-fill"></i> In Stock ({{ product.stock_quantity }}
-                available)</p>
-            <form method="post" action="{% url 'add_to_cart' product_id=product.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary btn-lg px-5 mt-2">
-                    <i class="bi bi-cart-plus"></i> Add to Cart
-                </button>
-            </form>
-            {% else %}
-            <p class="text-danger"><i class="bi bi-x-circle-fill"></i> Out of Stock</p>
-            <button class="btn btn-secondary btn-lg px-5 mt-2" disabled>Out of Stock</button>
-            {% endif %}
-
-            <hr class="my-4">
-            <div class="d-flex gap-3">
-                <span class="text-muted small"><i class="bi bi-truck"></i> Fast Delivery</span>
-                <span class="text-muted small"><i class="bi bi-shield-check"></i> Safe Materials</span>
-                <span class="text-muted small"><i class="bi bi-arrow-return-left"></i> Easy Returns</span>
-            </div>
-        </div>
+  <div class="row g-5 align-items-start">
+    <!-- Image -->
+    <div class="col-md-5">
+      <div class="bb-card p-3">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded" style="width:100%;max-height:420px;object-fit:cover;border-radius:12px;">
+        {% else %}
+        <div class="d-flex align-items-center justify-content-center bg-light rounded" style="height:400px;font-size:5rem;">&#x1F37C;</div>
+        {% endif %}
+      </div>
     </div>
 
-    <!-- Related Products -->
-    {% if related_products %}
-    <section class="mt-5 pt-3">
-        <h4 class="fw-bold mb-4">You Might Also Like</h4>
-        <div class="row g-4">
-            {% for rp in related_products %}
-            <div class="col-6 col-md-3">
-                <div class="card h-100">
-                    {% if rp.image %}
-                    <img src="{{ rp.image.url }}" class="card-img-top" alt="{{ rp.name }}"
-                        style="height:160px;object-fit:cover;">
-                    {% else %}
-                    <div class="d-flex align-items-center justify-content-center bg-light"
-                        style="height:160px;font-size:2.5rem;">🍼</div>
-                    {% endif %}
-                    <div class="card-body d-flex flex-column">
-                        <h6 class="fw-semibold small">{{ rp.name }}</h6>
-                        <p class="fw-bold mt-auto mb-2 small" style="color:#e91e8c">${{ rp.price }}</p>
-                        <a href="{% url 'product' id=rp.id %}" class="btn btn-outline-primary btn-sm">View</a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+    <!-- Info -->
+    <div class="col-md-7">
+      <p class="category-badge mb-1">{{ product.category.name }}</p>
+      <h1 class="h2 fw-bold mb-2" style="font-family:'Playfair Display',serif;">{{ product.name }}</h1>
+      <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="price-tag" style="font-size:1.8rem;">${{ product.price }}</span>
+        {% if product.is_in_stock %}
+        <span class="badge rounded-pill px-3 py-2" style="background:#d4edda;color:#155724;font-size:.82rem;"><i class="bi bi-check-circle-fill me-1"></i>In Stock ({{ product.stock_quantity }})</span>
+        {% else %}
+        <span class="badge rounded-pill px-3 py-2" style="background:#f8d7da;color:#721c24;font-size:.82rem;"><i class="bi bi-x-circle-fill me-1"></i>Out of Stock</span>
+        {% endif %}
+      </div>
+      <p class="text-muted mb-4" style="line-height:1.8;">{{ product.description }}</p>
+
+      {% if product.is_in_stock %}
+      <form method="post" action="{% url 'add_to_cart' product_id=product.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-pink btn-lg px-5 mb-4">
+          <i class="bi bi-cart-plus me-2"></i>Add to Cart
+        </button>
+      </form>
+      {% else %}
+      <button class="btn btn-secondary btn-lg px-5 mb-4" disabled>Out of Stock</button>
+      {% endif %}
+
+      <!-- Trust badges -->
+      <div class="d-flex gap-3 flex-wrap">
+        <div class="d-flex align-items-center gap-2 text-muted" style="font-size:.85rem;">
+          <i class="bi bi-truck text-pink"></i> Fast Delivery
         </div>
-    </section>
-    {% endif %}
+        <div class="d-flex align-items-center gap-2 text-muted" style="font-size:.85rem;">
+          <i class="bi bi-shield-check text-pink"></i> Safe Materials
+        </div>
+        <div class="d-flex align-items-center gap-2 text-muted" style="font-size:.85rem;">
+          <i class="bi bi-arrow-return-left text-pink"></i> Easy Returns
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Related Products -->
+  {% if related_products %}
+  <section class="mt-5 pt-4">
+    <div class="d-flex justify-content-between align-items-end mb-4">
+      <h4 class="fw-bold mb-0" style="font-family:'Playfair Display',serif;">You Might Also Like</h4>
+      <a href="{% url 'category' id=product.category.id %}" class="btn btn-outline-pink btn-sm">See All</a>
+    </div>
+    <div class="row g-4">
+      {% for rp in related_products %}
+      <div class="col-6 col-md-3">
+        <div class="bb-card h-100">
+          <div class="card-img-wrap">
+            {% if rp.image %}
+            <img src="{{ rp.image.url }}" alt="{{ rp.name }}" style="height:180px;">
+            {% else %}
+            <div class="d-flex align-items-center justify-content-center bg-light" style="height:180px;font-size:2.5rem;">&#x1F37C;</div>
+            {% endif %}
+          </div>
+          <div class="card-body">
+            <h6 class="fw-semibold" style="font-size:.88rem;">{{ rp.name }}</h6>
+            <p class="price-tag mb-2" style="font-size:1rem;">${{ rp.price }}</p>
+            <a href="{% url 'product' id=rp.id %}" class="btn btn-outline-primary btn-sm w-100">View</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
 </div>
 {% endblock %}

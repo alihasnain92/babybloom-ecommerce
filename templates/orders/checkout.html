@@ -1,49 +1,68 @@
 {% extends 'base.html' %}
 {% block title %}Checkout — BabyBloom{% endblock %}
-
 {% block content %}
 <div class="container py-5">
-    <h1 class="fw-bold mb-4"><i class="bi bi-credit-card"></i> Checkout</h1>
-    <div class="row g-4">
-        <!-- Shipping Form -->
-        <div class="col-md-7">
-            <div class="card p-4">
-                <h5 class="fw-bold mb-3">Shipping Information</h5>
-                <form method="post" novalidate>
-                    {% csrf_token %}
-                    {% for field in form %}
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                        {% for error in field.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                    <button type="submit" class="btn btn-primary w-100 py-2 mt-2">
-                        <i class="bi bi-bag-check"></i> Place Order
-                    </button>
-                </form>
+  <div class="mb-4">
+    <h2 class="fw-bold" style="font-family:'Playfair Display',serif;">&#x1F4E6; Checkout</h2>
+    <p class="text-muted">Almost there! Fill in your shipping details.</p>
+  </div>
+  <div class="row g-4">
+    <!-- Shipping Form -->
+    <div class="col-lg-7">
+      <div class="bb-form-card">
+        <h5 class="fw-bold mb-4"><i class="bi bi-geo-alt me-2" style="color:#e91e8c;"></i>Shipping Address</h5>
+        <form method="post" id="checkout-form">
+          {% csrf_token %}
+          <div class="row g-3">
+            {% for field in form %}
+            <div class="{% if field.name == 'address' %}col-12{% else %}col-md-6{% endif %}">
+              <label class="form-label fw-semibold" style="font-size:.85rem;">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                {% for err in field.errors %}<div class="text-danger" style="font-size:.8rem;">{{ err }}</div>{% endfor %}
+              {% endif %}
             </div>
-        </div>
-
-        <!-- Order Summary -->
-        <div class="col-md-5">
-            <div class="card p-4">
-                <h5 class="fw-bold mb-3">Order Summary</h5>
-                {% for item in cart_items %}
-                <div class="d-flex justify-content-between mb-2">
-                    <span class="text-muted small">{{ item.product.name }} × {{ item.quantity }}</span>
-                    <span class="small fw-semibold">${{ item.get_subtotal }}</span>
-                </div>
-                {% endfor %}
-                <hr>
-                <div class="d-flex justify-content-between fw-bold h5">
-                    <span>Total</span>
-                    <span style="color:#e91e8c">${{ total }}</span>
-                </div>
-            </div>
-        </div>
+            {% endfor %}
+          </div>
+          <button type="submit" class="btn btn-pink w-100 py-2 mt-4 btn-lg">
+            <i class="bi bi-bag-check me-2"></i>Place Order
+          </button>
+        </form>
+      </div>
     </div>
+
+    <!-- Order Summary -->
+    <div class="col-lg-5">
+      <div class="cart-summary">
+        <h5 class="fw-bold mb-4">Your Order</h5>
+        {% for item in cart_items %}
+        <div class="d-flex align-items-center gap-3 mb-3">
+          {% if item.product.image %}
+          <img src="{{ item.product.image.url }}" style="width:56px;height:56px;object-fit:cover;border-radius:10px;">
+          {% else %}
+          <div style="width:56px;height:56px;background:#fafafa;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;">&#x1F37C;</div>
+          {% endif %}
+          <div class="flex-grow-1">
+            <p class="mb-0 fw-semibold" style="font-size:.88rem;">{{ item.product.name }}</p>
+            <p class="text-muted mb-0" style="font-size:.82rem;">Qty: {{ item.quantity }}</p>
+          </div>
+          <span class="fw-bold" style="color:#e91e8c;">${{ item.get_subtotal }}</span>
+        </div>
+        {% endfor %}
+        <hr>
+        <div class="d-flex justify-content-between mb-1"><span class="text-muted">Shipping</span><span class="text-success fw-semibold">Free</span></div>
+        <div class="d-flex justify-content-between pt-2 border-top mt-2">
+          <span class="fw-bold fs-5">Total</span>
+          <span class="fw-bold fs-5" style="color:#e91e8c;">${{ total }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+{% block extra_css %}
+<style>
+.bb-form-card input, .bb-form-card textarea, .bb-form-card select { background:#f8f9fa; border:2px solid #f0f0f0; border-radius:10px; padding:.75rem 1rem; width:100%; font-family:'Poppins',sans-serif; transition:all .3s; }
+.bb-form-card input:focus, .bb-form-card textarea:focus, .bb-form-card select:focus { border-color:#e91e8c; box-shadow:0 0 0 4px rgba(233,30,140,.08); outline:none; }
+</style>
+{% endblock %}
 {% endblock %}
